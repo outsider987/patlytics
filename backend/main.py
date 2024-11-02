@@ -2,6 +2,15 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import json
 from typing import List, Dict, Optional
+import openai
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Configure OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI()
 
@@ -39,15 +48,54 @@ def find_company(company_name: str):
             return company
     return None
 
-def check_claim_infringement(claim: str, product_description: str) -> Optional[str]:
-    # Simple keyword matching - this could be enhanced with more sophisticated NLP
-    claim_words = set(claim.lower().split())
-    desc_words = set(product_description.lower().split())
-    
-    overlap = claim_words.intersection(desc_words)
-    if len(overlap) > 3:  # Arbitrary threshold for demonstration
-        return f"Product description contains key elements from claim: {', '.join(overlap)}"
-    return None
+async def analyze_infringement_with_gpt(claim: str, product_description: str, product_name: str) -> Optional[str]:
+    try:
+        prompt = f"""Analyze if the following product potentially infringes the patent claim.
+        
+        Product Name: {product_name}
+        Product Description: {product_description}
+        
+        Patent Claim: {claim}
+        
+        Provide a detailed analysis of potential infringement. If there is potential infringement, 
+        explain specifically which elements of the claim are present in the product. 
+        If there is no potential infringement, explain why not.
+        
+        Format your response as:
+        INFRINGEMENT: [Yes/No]
+        EXPLANATION: [Your detailed analysis]
+        """
+
+        response = await openai.ChatCompletion.acreate(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a patent analysis expert specializing in identifying potential patent infringement."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=500
+        )
+
+        analysis = response.choices[0].message.content
+        
+        # Parse the GPT response
+        lines = analysis.split('\n')
+        infringement = False
+        explanation = ""
+        
+        for line in lines:
+            if line.startswith("INFRINGEMENT:"):
+                infringement = "yes" in line.lower()
+            elif line.startswith("EXPLANATION:"):
+                explanation = line.replace("EXPLANATION:", "").strip()
+        
+        if infringement:
+            return explanation
+        return None
+
+    except Exception as e:
+        print(f"Error in GPT analysis: {str(e)}")
+        return None
 
 @app.post("/check-infringement", response_model=InfringementResponse)
 async def check_infringement(request: InfringementRequest):
@@ -78,7 +126,7 @@ async def check_infringement(request: InfringementRequest):
         explanations = []
         
         for i, claim in enumerate(claims, 1):
-            explanation = check_claim_infringement(claim, product["description"])
+            explanation = await analyze_infringement_with_gpt(claim, product["description"], product["name"])
             if explanation:
                 infringing_claims.append(f"Claim {i}")
                 explanations.append(explanation)
