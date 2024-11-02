@@ -1,0 +1,39 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    container_name: frontend-tree
+
+
+# version: '3.8'
+
+# services:
+#   dev:
+#     # build:
+#     #   context: ./dev
+#     ports:
+#       - "3002:3000"
+#     environment:
+#       - NODE_ENV=development
+#       - HOST=0.0.0.0
+#       - PORT=3000
+#     volumes:
+#       - ./shared:/app
+#     # env_file:
+#     #   - ./dev/.env
+
+#   production:
+#     build:
+#       context: ./root
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       - NODE_ENV=production
+#       - HOST=0.0.0.0
+#       - PORT=3000
+#     volumes:
+#       - ./shared:/app
+#     # env_file:
+#     #   - ./root/.env
