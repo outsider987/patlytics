@@ -25,3 +25,4 @@ tqdm==4.66.6
 typing_extensions==4.12.2
 uvicorn==0.32.0
 virtualenv==20.27.1
+openai==1.53.0
