@@ -20,16 +20,7 @@ const Hedaer = ({ className, ...props }) => {
         <h1>Patlytics</h1>
       </a>
 
-      {/* <div>
-        <Button
-          className="sm:w-[120px] md:w-[120px]  sm:h-[30px] md:h-[30px] sm:text-sm md:text-sm h-[40px] w-[150px] !p-0"
-          mode="primaryContained"
-          onClick={() => setShow(true)}
-          rounded
-        >
-          Launch DApp
-        </Button>
-      </div> */}
+ 
       <ConfimModal
         show={show}
         title="We're Almost There!"
