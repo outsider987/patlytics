@@ -1,10 +1,10 @@
 "use client";
-import axios from "axios";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import AnalysisResults from "@/components/AnalysisResults";
 import { useCheckInfringementAPI } from "./api/check-infringement";
+import { useDebounce } from "./hooks/useDebounce";
 
 // Define the form data type
 type FormInputs = {
@@ -15,14 +15,64 @@ type FormInputs = {
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [analysisData, setAnalysisData] = useState(null);
+  const [companyMatches, setCompanyMatches] = useState<string[]>([]);
+  const [patentMatches, setPatentMatches] = useState<string[]>([]);
+  const [showCompanySuggestions, setShowCompanySuggestions] = useState(false);
+  const [showPatentSuggestions, setShowPatentSuggestions] = useState(false);
 
   const api = useCheckInfringementAPI();
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<FormInputs>();
+
+  const companyName = watch("companyName");
+  const patentId = watch("patentId");
+
+  // Debounced fuzzy search functions
+  const handleCompanySearch = async (value: string) => {
+    if (value.length < 2) return;
+    try {
+      const response = await api.GET_FUZZY_MATCH_COMPANY(value);
+      setCompanyMatches(response.matches);
+    } catch (error) {
+      console.error("Error fetching company matches:", error);
+    }
+  };
+
+  const handlePatentSearch = async (value: string) => {
+    if (value.length < 2) return;
+    try {
+      const response = await api.GET_FUZZY_MATCH_PATENT(value);
+      setPatentMatches(response.matches);
+    } catch (error) {
+      console.error("Error fetching patent matches:", error);
+    }
+  };
+
+  const debouncedCompanySearch = useDebounce(handleCompanySearch, 300);
+  const debouncedPatentSearch = useDebounce(handlePatentSearch, 300);
+
+  // Watch for input changes
+  useEffect(() => {
+    if (companyName) {
+      debouncedCompanySearch(companyName);
+    } else {
+      setCompanyMatches([]);
+    }
+  }, [companyName]);
+
+  useEffect(() => {
+    if (patentId) {
+      debouncedPatentSearch(patentId);
+    } else {
+      setPatentMatches([]);
+    }
+  }, [patentId]);
 
   const onSubmit = async (data: FormInputs) => {
     setIsLoading(true);
@@ -32,7 +82,7 @@ export default function Home() {
 
       const res = await api.POST_CHECK_INFRINGEMENT(data);
 
-      setAnalysisData(res.data);
+      setAnalysisData(res);
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -48,7 +98,7 @@ export default function Home() {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 w-full max-w-md p-6"
           >
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 relative">
               <label htmlFor="patentId" className="text-white">
                 Patent ID
               </label>
@@ -57,13 +107,30 @@ export default function Home() {
                 {...register("patentId", { required: "Patent ID is required" })}
                 placeholder="Patent ID"
                 className="p-2 rounded text-black"
+                onFocus={() => setShowPatentSuggestions(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowPatentSuggestions(false), 200)
+                }
               />
+              {showPatentSuggestions && patentMatches.length > 0 && (
+                <ul className="absolute z-10 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto top-full">
+                  {patentMatches.map((match, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-black"
+                      onClick={() => setValue("patentId", match)}
+                    >
+                      {match}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {errors.patentId && (
-                <span className=" text-red">{errors.patentId.message}</span>
+                <span className="text-red-500">{errors.patentId.message}</span>
               )}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 relative">
               <label htmlFor="companyName" className="text-white">
                 Company Name
               </label>
@@ -74,9 +141,28 @@ export default function Home() {
                 })}
                 placeholder="Company Name"
                 className="p-2 rounded text-black"
+                onFocus={() => setShowCompanySuggestions(true)}
+                onBlur={() =>
+                  setTimeout(() => setShowCompanySuggestions(false), 200)
+                }
               />
+              {showCompanySuggestions && companyMatches.length > 0 && (
+                <ul className="absolute z-10 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto top-full">
+                  {companyMatches.map((match, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-black"
+                      onClick={() => setValue("companyName", match)}
+                    >
+                      {match}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {errors.companyName && (
-                <span className="text-red">{errors.companyName.message}</span>
+                <span className="text-red-500">
+                  {errors.companyName.message}
+                </span>
               )}
             </div>
 

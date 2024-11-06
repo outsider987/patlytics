@@ -11,19 +11,28 @@ class AIAnalysisService:
         product_description_list: List[Dict[str, str]]
     ) -> Optional[List[str]]:
         try:
-            prompt = f"""Analyze the following patent description and product descriptions to identify the top 2 most specific features of products that may infringe the patent.
-            
-            Patent features: 
-              1.description: {patent_description}
-              2.abstract: {abstract}
-            
-            Products Descriptions: 
-            {product_description_list}
-            
-            please return the top 2 product names in JSON format:
+            prompt = f"""You are analyzing a patent and product descriptions to identify potential patent infringement.
+
+            Task: Identify the 2 products that have features most likely to infringe on the patent.
+
+            Patent Information:
+            1. Abstract: {abstract}
+            2. Technical Description: {patent_description}
+
+            Product Catalog:
+            {json.dumps(product_description_list, indent=2)}
+
+            Instructions:
+            1. Carefully analyze the key technical features described in the patent
+            2. Compare these features against each product's specifications
+            3. Identify products with features that most closely match the patent's claims
+            4. Consider both literal infringement and doctrine of equivalents
+            5. Focus on technical similarities rather than surface-level descriptions
+
+            Return ONLY the 2 most likely infringing product names in this exact JSON format:
             [
-              "product name",
-              "product name2"
+              "product_name1",
+              "product_name2"
             ]
             """
 
