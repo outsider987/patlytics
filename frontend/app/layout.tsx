@@ -31,10 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-        <script src="https://unpkg.com/p5.js-svg@1.5.1"></script> */}
-      </head>
+      <head></head>
       <RootContextProvider>
         <body suppressHydrationWarning className={clsx(inter.className, "")}>
           <Header className="z-20" /> {/* Fixed the typo here as well */}
