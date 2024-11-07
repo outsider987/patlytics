@@ -40,7 +40,7 @@ const Modal = ({
   };
 
   const modalContent = (
-    <div className="fixed inset-0 max-w- flex items-center justify-center z-[99]">
+    <div className="fixed inset-0 max-w- flex items-center justify-center z-[99] ">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50"
@@ -49,23 +49,19 @@ const Modal = ({
       ></div>
 
       {/* Modal */}
-      <div className=" inset-0 flex items-center justify-center w-screen z-[99] relative">
+      <div className=" inset-0 flex items-center justify-center w-screen z-[99]  relative">
         <div
           className={clsx(
-            `relative rounded-2xl w-full px-6 py-5 ${sizeClasses[size]} mx-auto text-center shadow-lg border border-solid border-white ${className}`,
+            `relative bg-black rounded-2xl  max-h-[90vh] w-full px-6 py-5 ${sizeClasses[size]} mx-auto text-center shadow-lg border border-solid border-white ${className}`,
             "sm:min-h-[270px] md:min-h-[270px]"
           )}
-          style={{
-            background:
-              "linear-gradient(145.29deg, rgba(255, 255, 255, 0.72) 20.46%, rgba(255, 255, 255, 0.48) 99.45%)",
-          }}
         >
           {closeable && (
             <div className="flex justify-end">
               <button
                 onClick={onClose}
                 className={clsx(
-                  "absolute top-4 right-4 text-black hover:text-gray-700 transition-colors duration-200",
+                  "absolute top-4 right-4 text-orange-500 hover:text-gray-700 transition-colors duration-200",
                   "sm:relative sm:top-0 sm:right-0 md:relative md:top-0 md:right-0"
                 )}
                 aria-label="Close modal"
@@ -90,7 +86,7 @@ const Modal = ({
           <h2 className="font-semibold  text-black text-[34px] sm:text-[28px] md:text-[28px] tracking-wide leading-[45px]">
             {title}
           </h2>
-          <div className="flex items-center justify-center min-h-[180px] sm:min-h-[80px] md:min-h-[80px]">
+          <div className="flex overflow-auto h-[80vh] items-center justify-center min-h-[180px] sm:min-h-[80px] md:min-h-[80px]">
             {children}
           </div>
 

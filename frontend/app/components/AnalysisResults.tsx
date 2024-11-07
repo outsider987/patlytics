@@ -1,3 +1,5 @@
+import clsx from "clsx";
+
 type SpecificProduct = {
   product_name: string;
   infringement_likelihood: string;
@@ -15,9 +17,15 @@ type AnalysisData = {
   overall_risk_assessment: string;
 };
 
-const AnalysisResults = ({ data }: { data: AnalysisData }) => {
+const AnalysisResults = ({
+  data,
+  className,
+}: {
+  data: AnalysisData;
+  className?: string;
+}) => {
   return (
-    <div className="w-full max-w-4xl p-6 bg-gray-800 rounded-lg text-white pt-10">
+    <div className={clsx("w-full p-4 text-white", className)}>
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-4">Analysis Results</h2>
         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -47,17 +55,21 @@ const AnalysisResults = ({ data }: { data: AnalysisData }) => {
             <div key={index} className="bg-gray-700 p-4 rounded-lg">
               <div className="flex justify-between items-center mb-2">
                 <h4 className="text-lg font-medium">{product.product_name}</h4>
-                <span className={`px-3 py-1 rounded ${
-                  product.infringement_likelihood === "High" 
-                    ? "bg-red-500" 
-                    : product.infringement_likelihood === "Medium"
-                    ? "bg-yellow-500"
-                    : "bg-green-500"
-                }`}>
+                <span
+                  className={`px-3 py-1 rounded ${
+                    product.infringement_likelihood === "High"
+                      ? "bg-red-500"
+                      : product.infringement_likelihood === "Medium"
+                      ? "bg-yellow-500"
+                      : "bg-green-500"
+                  }`}
+                >
                   {product.infringement_likelihood}
                 </span>
               </div>
-              <p className="text-gray-300 mb-2">Relevant Claims: {product.relevant_claims.join(", ")}</p>
+              <p className="text-gray-300 mb-2">
+                Relevant Claims: {product.relevant_claims.join(", ")}
+              </p>
               <p className="text-gray-300 mb-2">{product.explanation}</p>
               <div>
                 <p className="font-medium mb-1">Specific Features:</p>
@@ -80,4 +92,4 @@ const AnalysisResults = ({ data }: { data: AnalysisData }) => {
   );
 };
 
-export default AnalysisResults; 
+export default AnalysisResults;

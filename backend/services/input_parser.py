@@ -32,7 +32,7 @@ class BasicInputParser(InputParserInterface):
         return input_data
 
 class FuzzyMatcher(FuzzyMatchInterface):
-    def find_matches(self, query: str, candidates: List[str], threshold: int = 50) -> List[str]:
+    def find_matches(self, query: str, candidates: List[str], threshold: int = 30) -> List[str]:
         matches = []
         for candidate in candidates:
             ratio = fuzz.ratio(query.lower(), candidate.lower())

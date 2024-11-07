@@ -1,10 +1,12 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
-import LoadingSpinner from "@/components/LoadingSpinner";
-import AnalysisResults from "@/components/AnalysisResults";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
+import AnalysisResults from "@/app/components/AnalysisResults";
 import { useCheckInfringementAPI } from "./api/check-infringement";
 import { useDebounce } from "./hooks/useDebounce";
+import { useAnalysisStorage } from "./hooks/useAnalysisStorage";
+import CollectResult from "@/app/components/CollectResult";
 
 // Define the form data type
 type FormInputs = {
@@ -32,6 +34,8 @@ export default function Home() {
 
   const companyName = watch("companyName");
   const patentId = watch("patentId");
+
+  const { saveAnalysis } = useAnalysisStorage();
 
   // Debounced fuzzy search functions
   const handleCompanySearch = async (value: string) => {
@@ -77,12 +81,9 @@ export default function Home() {
   const onSubmit = async (data: FormInputs) => {
     setIsLoading(true);
     try {
-      // Simulate API call with setTimeout
-      // await new Promise(resolve => setTimeout(resolve, 2000));
-
       const res = await api.POST_CHECK_INFRINGEMENT(data);
-
       setAnalysisData(res);
+      saveAnalysis(res);
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -92,7 +93,8 @@ export default function Home() {
 
   return (
     <main className="flex flex-col min-h-screen m-auto overflow-hidden items-center max-w-[1920px] justify-center w-full bg-black">
-      <div className="flex flex-col items-center justify-center w-full h-full m-auto p-6">
+      <CollectResult />
+      <div className="flex flex-col items-center justify-center w-full h-full m-auto p-6 pr-64">
         {!isLoading && !analysisData && (
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -126,7 +128,9 @@ export default function Home() {
                 </ul>
               )}
               {errors.patentId && (
-                <span className="text-red-500">{errors.patentId.message}</span>
+                <span className="text-orange-500">
+                  {errors.patentId.message}
+                </span>
               )}
             </div>
 
@@ -160,7 +164,7 @@ export default function Home() {
                 </ul>
               )}
               {errors.companyName && (
-                <span className="text-red-500">
+                <span className="text-orange-500">
                   {errors.companyName.message}
                 </span>
               )}
