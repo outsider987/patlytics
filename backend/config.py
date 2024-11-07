@@ -19,8 +19,8 @@ client.api_key = os.getenv("OPENAI_API_KEY")
 
 # CORS settings
 cors_settings = {
-    "allow_origins": ["*"],
+    "allow_origins": ["https://patlytics-tawny.vercel.app"],  # Restrict to specific origin
     "allow_credentials": True,
-    "allow_methods": ["*"],
-    "allow_headers": ["*"],
-} 
+    "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Specify allowed methods
+    "allow_headers": ["Content-Type", "Authorization"],  # Specify allowed headers
+}
