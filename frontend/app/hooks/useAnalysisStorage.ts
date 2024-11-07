@@ -30,7 +30,7 @@ export const useAnalysisStorage = () => {
   }, []);
 
   const saveAnalysis = (analysis: AnalysisData) => {
-    debugger
+    
     const updated = [analysis, ...analysisHistory].slice(0, 10); // Keep last 10 analyses
     setAnalysisHistory(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));

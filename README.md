@@ -20,3 +20,7 @@ To run the application using Docker Compose:
 ```
 docker compose up
 ```
+
+
+4. Once the application is running, you could follow this link to test: [Patlytics Test](https://patlytics-tawny.vercel.app/)
+

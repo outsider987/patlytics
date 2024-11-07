@@ -2,13 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import Button from "../components/Button";
-import { useWalletContext } from "../store/Wallet";
-import TitleImage from "@/public/svgs/title.svg";
 import ConfimModal from "../components/Modal/Confim";
 
 const Hedaer = ({ className, ...props }) => {
-  const { connect, accounts } = useWalletContext();
   const [show, setShow] = useState(false);
 
   return (
@@ -19,20 +15,6 @@ const Hedaer = ({ className, ...props }) => {
         {/* <img src={TitleImage.src} width={174} alt="Home" /> */}
         <h1>Patlytics</h1>
       </a>
-
- 
-      <ConfimModal
-        show={show}
-        title="We're Almost There!"
-        onClose={() => setShow(false)}
-        buttonText={"Close"}
-        size="xl"
-      >
-        <p className="text-center text-base text-black ">
-          Thank you for your interest. Our DApp is still under development and
-          not ready yet. Stay tuned for an exciting experience coming soon!
-        </p>
-      </ConfimModal>
     </header>
   );
 };

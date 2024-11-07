@@ -1,10 +1,10 @@
-import { useAnalysisStorage } from '../hooks/useAnalysisStorage';
+import { useHistory } from '../store/History';
 import { useState } from 'react';
 import Modal from './Modal';
 import AnalysisResults from './AnalysisResults';
 
 const CollectResult = () => {
-  const { analysisHistory, clearHistory } = useAnalysisStorage();
+  const { analysisHistory, clearHistory } = useHistory();
   const [selectedAnalysis, setSelectedAnalysis] = useState<any>(null);
 
   const handleClose = () => {

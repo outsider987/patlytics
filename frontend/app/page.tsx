@@ -5,8 +5,10 @@ import LoadingSpinner from "@/app/components/LoadingSpinner";
 import AnalysisResults from "@/app/components/AnalysisResults";
 import { useCheckInfringementAPI } from "./api/check-infringement";
 import { useDebounce } from "./hooks/useDebounce";
-import { useAnalysisStorage } from "./hooks/useAnalysisStorage";
+import { useHistory } from './store/History';
 import CollectResult from "@/app/components/CollectResult";
+import Button from "./components/Button";
+import Input from "@/app/components/Input";
 
 // Define the form data type
 type FormInputs = {
@@ -19,8 +21,6 @@ export default function Home() {
   const [analysisData, setAnalysisData] = useState(null);
   const [companyMatches, setCompanyMatches] = useState<string[]>([]);
   const [patentMatches, setPatentMatches] = useState<string[]>([]);
-  const [showCompanySuggestions, setShowCompanySuggestions] = useState(false);
-  const [showPatentSuggestions, setShowPatentSuggestions] = useState(false);
 
   const api = useCheckInfringementAPI();
 
@@ -35,7 +35,7 @@ export default function Home() {
   const companyName = watch("companyName");
   const patentId = watch("patentId");
 
-  const { saveAnalysis } = useAnalysisStorage();
+  const { saveAnalysis } = useHistory();
 
   // Debounced fuzzy search functions
   const handleCompanySearch = async (value: string) => {
@@ -100,82 +100,31 @@ export default function Home() {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 w-full max-w-md p-6"
           >
-            <div className="flex flex-col gap-2 relative">
-              <label htmlFor="patentId" className="text-white">
-                Patent ID
-              </label>
-              <input
-                id="patentId"
-                {...register("patentId", { required: "Patent ID is required" })}
-                placeholder="Patent ID"
-                className="p-2 rounded text-black"
-                onFocus={() => setShowPatentSuggestions(true)}
-                onBlur={() =>
-                  setTimeout(() => setShowPatentSuggestions(false), 200)
-                }
-              />
-              {showPatentSuggestions && patentMatches.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto top-full">
-                  {patentMatches.map((match, index) => (
-                    <li
-                      key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-black"
-                      onClick={() => setValue("patentId", match)}
-                    >
-                      {match}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {errors.patentId && (
-                <span className="text-orange-500">
-                  {errors.patentId.message}
-                </span>
-              )}
-            </div>
+            <Input
+              id="patentId"
+              label="Patent ID"
+              placeholder="Patent ID"
+              register={register}
+              requiredMessage="Patent ID is required"
+              errors={errors}
+              suggestions={patentMatches}
+              setValue={setValue}
+            />
 
-            <div className="flex flex-col gap-2 relative">
-              <label htmlFor="companyName" className="text-white">
-                Company Name
-              </label>
-              <input
-                id="companyName"
-                {...register("companyName", {
-                  required: "Company name is required",
-                })}
-                placeholder="Company Name"
-                className="p-2 rounded text-black"
-                onFocus={() => setShowCompanySuggestions(true)}
-                onBlur={() =>
-                  setTimeout(() => setShowCompanySuggestions(false), 200)
-                }
-              />
-              {showCompanySuggestions && companyMatches.length > 0 && (
-                <ul className="absolute z-10 w-full bg-white mt-1 rounded-md shadow-lg max-h-60 overflow-auto top-full">
-                  {companyMatches.map((match, index) => (
-                    <li
-                      key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-black"
-                      onClick={() => setValue("companyName", match)}
-                    >
-                      {match}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {errors.companyName && (
-                <span className="text-orange-500">
-                  {errors.companyName.message}
-                </span>
-              )}
-            </div>
+            <Input
+              id="companyName"
+              label="Company Name"
+              placeholder="Company Name"
+              register={register}
+              requiredMessage="Company name is required"
+              errors={errors}
+              suggestions={companyMatches}
+              setValue={setValue}
+            />
 
-            <button
-              type="submit"
-              className="bg-gray-500 hover:bg-gray-600 text-white p-2 rounded shadow-gray-500 hover:shadow-gray-600 transition-shadow duration-200"
-            >
+            <Button mode="primaryContained" type="submit" className="rounded">
               Submit
-            </button>
+            </Button>
           </form>
         )}
 
@@ -183,12 +132,12 @@ export default function Home() {
 
         {!isLoading && analysisData && (
           <>
-            <button
+            <Button
               onClick={() => setAnalysisData(null)}
               className="mb-6 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded z-50"
             >
               New Analysis
-            </button>
+            </Button>
             <AnalysisResults data={analysisData} />
           </>
         )}
